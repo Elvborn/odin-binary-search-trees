@@ -51,7 +51,7 @@ class Tree {
 	}
 
 	deleteItem(value) {
-		const { parent, target } = this.find(value);
+		const { parent, target } = this.findExtended(value);
 
 		if (!target) return;
 
@@ -99,7 +99,7 @@ class Tree {
 		}
 	}
 
-	find(value, currentNode = this.root, prevNode = null) {
+	findExtended(value, currentNode = this.root, prevNode = null) {
 		if (!currentNode) {
 			return {
 				parent: null,
@@ -115,8 +115,12 @@ class Tree {
 		}
 
 		if (value < currentNode.value)
-			return this.find(value, currentNode.left, currentNode);
-		else return this.find(value, currentNode.right, currentNode);
+			return this.findExtended(value, currentNode.left, currentNode);
+		else return this.findExtended(value, currentNode.right, currentNode);
+	}
+
+	find(value) {
+		return this.findExtended(value).target;
 	}
 
 	levelOrder(callback) {
@@ -132,6 +136,71 @@ class Tree {
 			if (node.left) queue.push(node.left);
 			if (node.right) queue.push(node.right);
 		}
+	}
+
+	inOrder(callback) {
+		if (!callback) throw new Error("No callback function!");
+
+		sortInOrder(this.root);
+
+		function sortInOrder(node) {
+			if (!node.left) {
+				callback(node);
+
+				if (node.right) sortInOrder(node.right);
+
+				return;
+			}
+
+			if (node.left) sortInOrder(node.left); // Smaller nodes
+
+			callback(node); // Current node
+
+			if (node.right) sortInOrder(node.right); // Bigger nodes
+		}
+	}
+
+	preOrder(callback) {
+		if (!callback) throw new Error("No callback function!");
+
+		sortPreOrder(this.root);
+
+		function sortPreOrder(node) {
+			callback(node);
+
+			if (node.left) sortPreOrder(node.left); // Smaller nodes
+			if (node.right) sortPreOrder(node.right); // Bigger nodes
+		}
+	}
+
+	postOrder(callback) {
+		if (!callback) throw new Error("No callback function!");
+
+		sortPostOrder(this.root);
+
+		function sortPostOrder(node) {
+			if (node.left) sortPostOrder(node.left); // Smaller nodes
+			if (node.right) sortPostOrder(node.right); // Bigger nodes
+
+			callback(node);
+		}
+	}
+
+	height(node) {
+		if (!(node instanceof Object))
+			throw new Error("Argument must be of type Node");
+
+		function findHeight(currentNode, height = 0) {
+			if (!currentNode) return null;
+
+			if (currentNode === node) return height;
+
+			if (node.value < currentNode.value)
+				return findHeight(currentNode.left, (height += 1));
+			else return findHeight(currentNode.right, (height += 1));
+		}
+
+		return findHeight(this.root);
 	}
 }
 
@@ -151,6 +220,7 @@ function prettyPrint(node, prefix = "", isLeft = true) {
 const data = [1, 5, 3, 15, 42, 2, 8, 9, 14, 123, 45, 135, 331, 78];
 const tree = new Tree(data);
 
-tree.insert(6);
-tree.deleteItem(0);
 prettyPrint(tree.root);
+
+const node = tree.find(9);
+console.log(tree.height(node));
