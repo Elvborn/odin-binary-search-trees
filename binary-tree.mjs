@@ -36,6 +36,8 @@ class Tree {
 
 	insert(value) {
 		function insertRec(val, currentNode) {
+			if (currentNode.value === val) return;
+
 			if (val < currentNode.value) {
 				if (currentNode.left === null) currentNode.left = new Node(val);
 				else insertRec(val, currentNode.left);
@@ -209,7 +211,7 @@ class Tree {
 			return leftHeight > rightHeight ? leftHeight : rightHeight;
 		}
 
-		return findHeight(node);
+		return findHeight(node) + 1;
 	}
 
 	depth(node) {
@@ -228,25 +230,44 @@ class Tree {
 
 		return findDepth(this.root);
 	}
+
+	isBalanced() {
+		const leftHeight = this.root.left ? this.height(this.root.left) : 0;
+		const rightHeight = this.root.right ? this.height(this.root.right) : 0;
+
+		if (Math.abs(leftHeight - rightHeight) > 1) {
+			return false;
+		}
+
+		return true;
+	}
+
+	rebalance() {
+		const values = [];
+
+		this.levelOrder((node) => {
+			values.push(node.value);
+		});
+
+		this.root = this.buildTree(values);
+	}
+
+	prettyPrint(node, prefix = "", isLeft = true) {
+		if (node === null) {
+			return;
+		}
+		if (node.right !== null) {
+			this.prettyPrint(
+				node.right,
+				`${prefix}${isLeft ? "│   " : "    "}`,
+				false
+			);
+		}
+		console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.value}`);
+		if (node.left !== null) {
+			this.prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
+		}
+	}
 }
 
-function prettyPrint(node, prefix = "", isLeft = true) {
-	if (node === null) {
-		return;
-	}
-	if (node.right !== null) {
-		prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
-	}
-	console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.value}`);
-	if (node.left !== null) {
-		prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
-	}
-}
-
-const data = [1, 5, 3, 15, 42, 2, 8, 9, 14, 123, 45, 135, 331, 78];
-const tree = new Tree(data);
-
-prettyPrint(tree.root);
-
-const node = tree.find(14);
-console.log(tree.height(node));
+export { Tree, Node };
