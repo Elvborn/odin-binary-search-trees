@@ -190,17 +190,43 @@ class Tree {
 		if (!(node instanceof Object))
 			throw new Error("Argument must be of type Node");
 
-		function findHeight(currentNode, height = 0) {
-			if (!currentNode) return null;
+		function findHeight(currentNode) {
+			if (!currentNode.left && !currentNode.right) return 0;
 
-			if (currentNode === node) return height;
+			let leftHeight = 0;
+			let rightHeight = 0;
 
-			if (node.value < currentNode.value)
-				return findHeight(currentNode.left, (height += 1));
-			else return findHeight(currentNode.right, (height += 1));
+			if (currentNode.left) {
+				leftHeight += findHeight(currentNode.left);
+				leftHeight++;
+			}
+
+			if (currentNode.right) {
+				rightHeight += findHeight(currentNode.right);
+				rightHeight++;
+			}
+
+			return leftHeight > rightHeight ? leftHeight : rightHeight;
 		}
 
-		return findHeight(this.root);
+		return findHeight(node);
+	}
+
+	depth(node) {
+		if (!(node instanceof Object))
+			throw new Error("Argument must be of type Node");
+
+		function findDepth(currentNode, depth = 0) {
+			if (!currentNode) return null;
+
+			if (currentNode === node) return depth;
+
+			if (node.value < currentNode.value)
+				return findDepth(currentNode.left, (depth += 1));
+			else return findDepth(currentNode.right, (depth += 1));
+		}
+
+		return findDepth(this.root);
 	}
 }
 
@@ -222,5 +248,5 @@ const tree = new Tree(data);
 
 prettyPrint(tree.root);
 
-const node = tree.find(9);
+const node = tree.find(14);
 console.log(tree.height(node));
